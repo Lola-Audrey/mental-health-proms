@@ -23,6 +23,12 @@
       "url": "https://www.opencodelists.org/codelist/user/Lola_O/phq9_score_codes/0c6e7d5a/",
       "downloaded_at": "2026-03-05 10:50:13.802814Z",
       "sha": "5720235f5112839211ed4eb282f732210523003b"
+    },
+    "opensafely-ethnicity-snomed-0removed.csv": {
+      "id": "opensafely/ethnicity-snomed-0removed/22911876",
+      "url": "https://www.opencodelists.org/codelist/opensafely/ethnicity-snomed-0removed/22911876/",
+      "downloaded_at": "2026-03-05 11:00:24.393422Z",
+      "sha": "d95a2f826299563aa57f6fa99009e6e13a65151b"
     }
   }
 }
