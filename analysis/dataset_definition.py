@@ -24,8 +24,8 @@ phq9_proc_event = previous_events.where(clinical_events.snomedct_code.is_in(phq_
 gad7_score_event = previous_events.where(clinical_events.snomedct_code.is_in(gad_ob))
 gad7_proc_event = previous_events.where(clinical_events.snomedct_code.is_in(gad_pro))
 
-invalid_phq9_score = phq9_score_event.where(clinical_events.numeric_value < 0 | clinical_events.numeric_value > 27)
-invalid_gad7_score = gad7_score_event.where(clinical_events.numeric_value < 0 | clinical_events.numeric_value > 21)
+invalid_phq9_score = phq9_score_event.where((clinical_events.numeric_value < 0) | (clinical_events.numeric_value > 27))
+invalid_gad7_score = gad7_score_event.where((clinical_events.numeric_value < 0) | (clinical_events.numeric_value > 21))
 
 # proms counts
 phq9_score_count = phq9_score_event.count_for_patient()
@@ -49,11 +49,10 @@ dataset.define_population(has_registration & is_16_or_older & is_alive)
 
 dataset.sex = patients.sex
 dataset.age = age
-dataset.imd = addresses.imd_quintile.for_patient_on(index_date)
-dataset.region = practice_registrations.practice_nuts1_region_name.for_patient_on(index_date) 
+dataset.imd = addresses.for_patient_on(index_date).imd_quintile
+dataset.region = practice_registrations.for_patient_on(index_date).practice_nuts1_region_name
 dataset.latest_ethnicity_group = (
-  clinical_events.where(clinical_events.snomedct_code.is_in(ethnicity))
-  .where(clinical_events.date.is_on_or_before(index_date))
+  previous_events.where(clinical_events.snomedct_code.is_in(ethnicity))
   .sort_by(clinical_events.date)
   .last_for_patient().snomedct_code
   .to_category(ethnicity)
