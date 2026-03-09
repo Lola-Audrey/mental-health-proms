@@ -49,6 +49,7 @@ dataset.define_population(has_registration & is_16_or_older & is_alive)
 
 dataset.sex = patients.sex
 dataset.age = age
+dataset.imd_rounded = addresses.for_patient_on(index_date).imd_rounded
 dataset.imd = addresses.for_patient_on(index_date).imd_quintile
 dataset.region = practice_registrations.for_patient_on(index_date).practice_nuts1_region_name
 dataset.latest_ethnicity_group = (
@@ -58,8 +59,11 @@ dataset.latest_ethnicity_group = (
   .to_category(ethnicity)
 )
 dataset.has_any_prom = has_any_prom
+dataset.more_than_one_prom = more_than_one_prom
 dataset.phq9_score_count = phq9_score_count
 dataset.gad7_score_count = gad7_score_count
 dataset.prom_score_count = prom_score_count
 dataset.phq9_out_of_range_count = phq9_out_of_range_count 
 dataset.gad7_out_of_range_count = gad7_out_of_range_count 
+dataset.phq9_proc_count = phq9_proc_count
+dataset.gad7_proc_count = gad7_proc_count
