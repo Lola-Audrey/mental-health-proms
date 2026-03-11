@@ -3,6 +3,11 @@ from ehrql.tables.tpp import patients, practice_registrations, addresses, clinic
 from codelists import ethnicity, phq_ob, phq_pro, gad_ob, gad_pro
 
 measures = create_measures()
+measures.configure_dummy_data(population_size=1000)
+
+index_date = "2024-03-31"
+years_of_data = 10
+months_of_data = 12
 
 selected_events = clinical_events.where(clinical_events.date <= INTERVAL.end_date)
 
@@ -15,6 +20,7 @@ is_registered = (
     .exists_for_patient()
 )
 base_population = aged_16_or_older & is_alive & is_registered
+
 # Grouping
 age = patients.age_on(INTERVAL.start_date)
 age_band = case(
@@ -24,7 +30,6 @@ age_band = case(
     when((age >= 60) & (age < 80)).then("60-79"),
     when(age >= 80).then("80+"),
 )
-
 
 ethnicity = (
     selected_events.where(clinical_events.snomedct_code.is_in(ethnicity))
@@ -51,13 +56,26 @@ has_recorded_sex = patients.sex.is_not_null()
 
 # PROMs measures
 
+phq9_proc_event = selected_events.where(clinical_events.snomedct_code.is_in(phq_pro))
+gad7_proc_event = selected_events.where(clinical_events.snomedct_code.is_in(gad_pro))
+
+
 # Patients that completed a questionnaire for Depression or Anxiety at least once in the last year
 phq9_score_event = selected_events.where(clinical_events.snomedct_code.is_in(phq_ob))
 gad7_score_event = selected_events.where(clinical_events.snomedct_code.is_in(gad_ob))       
 phq9_score_count = phq9_score_event.count_for_patient()
 gad7_score_count = gad7_score_event.count_for_patient()     
-has_completed_phq9 = phq9_score_count >= 1
-has_completed_gad7 = gad7_score_count >= 1
+has_completed_phq9 = phq9_score_count > 0
+has_completed_gad7 = gad7_score_count > 0
+
+invalid_phq9_score = phq9_score_event.where((clinical_events.numeric_value < 0) | (clinical_events.numeric_value > 27))
+invalid_gad7_score = gad7_score_event.where((clinical_events.numeric_value < 0) | (clinical_events.numeric_value > 21))
+
+phq9_out_of_range_count = invalid_phq9_score.count_for_patient()
+gad7_out_of_range_count = invalid_gad7_score.count_for_patient()
+
+total_prom_score_count = phq9_score_count + gad7_score_count
+all_invalid_prom_count = phq9_out_of_range_count + gad7_out_of_range_count
 
 has_at_least_one_prom = (has_completed_phq9 | has_completed_gad7)
 
@@ -65,9 +83,28 @@ measures.define_measure(
     name="patients_completed_at_least_one_prom",
     numerator=has_at_least_one_prom,
     denominator=base_population,
-    intervals= years(10).ending_on("2024-03-31")
+    intervals= years(10).ending_on(index_date)
+)
+
+measures.define_measure(
+    name="more_than_one_prom_population",
+    numerator=(phq9_score_count > 1) | (gad7_score_count > 1),
+    denominator=base_population,
+    intervals= years(10).ending_on(index_date)
+)   
+
+measures.define_measure(
+    name="more_than_one_prom",
+    numerator=(phq9_score_count > 1) | (gad7_score_count > 1),
+    denominator=has_at_least_one_prom,
+    intervals= years(10).ending_on(index_date)
+)
+
+measures.define_measure(
+    name="invalid_prom_proportion",
+    numerator= all_invalid_prom_count,
+    denominator=total_prom_score_count,
+    intervals= years(10).ending_on(index_date)
 )
 
 
-
- 
