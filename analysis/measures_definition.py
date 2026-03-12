@@ -90,21 +90,21 @@ measures.define_measure(
     name="more_than_one_prom_population",
     numerator=(phq9_score_count > 1) | (gad7_score_count > 1),
     denominator=base_population,
-    intervals= years(10).ending_on(index_date)
+    intervals= years(1).ending_on(index_date)
 )   
 
 measures.define_measure(
     name="more_than_one_prom",
     numerator=(phq9_score_count > 1) | (gad7_score_count > 1),
     denominator=has_at_least_one_prom,
-    intervals= years(10).ending_on(index_date)
+    intervals= years(1).ending_on(index_date)
 )
 
 measures.define_measure(
     name="invalid_prom_proportion",
     numerator= all_invalid_prom_count,
     denominator=total_prom_score_count,
-    intervals= years(10).ending_on(index_date)
+    intervals= years(1).ending_on(index_date)
 )
 
 
