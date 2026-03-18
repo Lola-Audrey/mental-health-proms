@@ -1,4 +1,7 @@
-# mental-health-proms
+# Mental Health PROMs data development
+This repository contains data development code for exploratory analysis of Patient Reported Outcome Measures (PROMs), focusing on anxiety disorders (GAD-7) and depression (PHQ-9).
+
+The aim is to support the study of trends and variation in PROM assessment in primary care.
 
 [View on OpenSAFELY](https://jobs.opensafely.org/repo/https%253A%252F%252Fgithub.com%252Fopensafely%252Fmental-health-proms)
 
