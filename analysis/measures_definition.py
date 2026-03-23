@@ -1,6 +1,17 @@
 from ehrql import INTERVAL, create_measures, months, case, when, years
-from ehrql.tables.tpp import patients, practice_registrations, addresses, clinical_events
-from codelists import ethnicity, phq_ob, phq_pro, gad_ob, gad_pro
+from ehrql.tables.tpp import (
+    patients,
+    practice_registrations,
+    addresses,
+    clinical_events,
+)
+from codelists import (
+    ethnicity_codes,
+    phq9_observable_entity_code,
+    phq9_procedure_code,
+    gad7_observable_entity_code,
+    gad7_procedure_code,
+)
 
 measures = create_measures()
 measures.configure_dummy_data(population_size=1000)
@@ -32,12 +43,12 @@ age_band = case(
 )
 
 ethnicity = (
-    selected_events.where(clinical_events.snomedct_code.is_in(ethnicity))
+    selected_events.where(clinical_events.snomedct_code.is_in(ethnicity_codes))
     .sort_by(clinical_events.date)
-    .last_for_patient().snomedct_code
-    .to_category(ethnicity)
+    .last_for_patient()
+    .snomedct_code.to_category(ethnicity_codes)
 )
-  
+
 ethnicity_group = case(
     when(ethnicity == "1").then("White"),
     when(ethnicity == "2").then("Mixed"),
@@ -46,9 +57,11 @@ ethnicity_group = case(
     when(ethnicity == "5").then("Chinese or Other Ethnic Groups"),
 )
 
-region = practice_registrations.for_patient_on(INTERVAL.end_date).practice_nuts1_region_name
+region = practice_registrations.for_patient_on(
+    INTERVAL.end_date
+).practice_nuts1_region_name
 imd = addresses.for_patient_on(INTERVAL.end_date).imd_quintile
-has_recorded_ethnicity = ethnicity.is_not_null()  
+has_recorded_ethnicity = ethnicity.is_not_null()
 has_recorded_imd = imd.is_not_null()
 has_recorded_region = region.is_not_null()
 has_recorded_age = age.is_not_null()
@@ -56,20 +69,24 @@ has_recorded_sex = patients.sex.is_not_null()
 
 # PROMs measures
 
-phq9_proc_event = selected_events.where(clinical_events.snomedct_code.is_in(phq_pro))
-gad7_proc_event = selected_events.where(clinical_events.snomedct_code.is_in(gad_pro))
+phq9_procedure_event = selected_events.where(clinical_events.snomedct_code.is_in(phq9_procedure_code))
+gad7_procedure_event = selected_events.where(clinical_events.snomedct_code.is_in(gad7_procedure_code))
 
 
 # Patients that completed a questionnaire for Depression or Anxiety at least once in the last year
-phq9_score_event = selected_events.where(clinical_events.snomedct_code.is_in(phq_ob))
-gad7_score_event = selected_events.where(clinical_events.snomedct_code.is_in(gad_ob))       
+phq9_score_event = selected_events.where(clinical_events.snomedct_code.is_in(phq9_observable_entity_code))
+gad7_score_event = selected_events.where(clinical_events.snomedct_code.is_in(gad7_observable_entity_code))
 phq9_score_count = phq9_score_event.count_for_patient()
-gad7_score_count = gad7_score_event.count_for_patient()     
+gad7_score_count = gad7_score_event.count_for_patient()
 has_completed_phq9 = phq9_score_count > 0
 has_completed_gad7 = gad7_score_count > 0
 
-invalid_phq9_score = phq9_score_event.where((clinical_events.numeric_value < 0) | (clinical_events.numeric_value > 27))
-invalid_gad7_score = gad7_score_event.where((clinical_events.numeric_value < 0) | (clinical_events.numeric_value > 21))
+invalid_phq9_score = phq9_score_event.where(
+    (clinical_events.numeric_value < 0) | (clinical_events.numeric_value > 27)
+)
+invalid_gad7_score = gad7_score_event.where(
+    (clinical_events.numeric_value < 0) | (clinical_events.numeric_value > 21)
+)
 
 phq9_out_of_range_count = invalid_phq9_score.count_for_patient()
 gad7_out_of_range_count = invalid_gad7_score.count_for_patient()
@@ -77,34 +94,32 @@ gad7_out_of_range_count = invalid_gad7_score.count_for_patient()
 total_prom_score_count = phq9_score_count + gad7_score_count
 all_invalid_prom_count = phq9_out_of_range_count + gad7_out_of_range_count
 
-has_at_least_one_prom = (has_completed_phq9 | has_completed_gad7)
+has_at_least_one_prom = has_completed_phq9 | has_completed_gad7
 
 measures.define_measure(
     name="patients_completed_at_least_one_prom",
     numerator=has_at_least_one_prom,
     denominator=base_population,
-    intervals= years(10).ending_on(index_date)
+    intervals=years(10).ending_on(index_date),
 )
 
 measures.define_measure(
     name="more_than_one_prom_population",
     numerator=(phq9_score_count > 1) | (gad7_score_count > 1),
     denominator=base_population,
-    intervals= years(1).ending_on(index_date)
-)   
+    intervals=years(1).ending_on(index_date),
+)
 
 measures.define_measure(
     name="more_than_one_prom",
     numerator=(phq9_score_count > 1) | (gad7_score_count > 1),
     denominator=has_at_least_one_prom,
-    intervals= years(1).ending_on(index_date)
+    intervals=years(1).ending_on(index_date),
 )
 
 measures.define_measure(
     name="invalid_prom_proportion",
-    numerator= all_invalid_prom_count,
+    numerator=all_invalid_prom_count,
     denominator=total_prom_score_count,
-    intervals= years(1).ending_on(index_date)
+    intervals=years(1).ending_on(index_date),
 )
-
-

@@ -30,7 +30,6 @@ test_data = {
         ],
         "expected_in_population": False,
     },
-    
     # 2. Too young - under 16 years old
     2: {
         "patients": {"date_of_birth": date(2016, 6, 1)},
@@ -49,7 +48,6 @@ test_data = {
         "clinical_events": [],
         "expected_in_population": False,
     },
-
     # 4. Not alive on index date
     4: {
         "patients": {
@@ -77,9 +75,7 @@ test_data = {
         ],
         "expected_in_population": False,
     },
-    
     # ===== CORRECTLY IN POPULATION =====
-    
     # 5. Both valid PHQ-9 and GAD-7 scores
     5: {
         "patients": {
@@ -114,22 +110,21 @@ test_data = {
         "expected_columns": {
             "sex": "female",
             "age": 54,
-            "imd_rounded": 3000,
             "imd": "1 (most deprived)",
             "region": "East",
             "latest_ethnicity_group": None,
-            "has_any_prom": True,
-            "more_than_one_prom": True,
+            "has_any_prom_score": True,
+            "has_more_than_one_prom_score": True,
             "phq9_score_count": 1,
             "gad7_score_count": 1,
             "prom_score_count": 2,
             "phq9_out_of_range_count": 0,
             "gad7_out_of_range_count": 0,
-            "phq9_proc_count": 0,
-            "gad7_proc_count": 0,
+            "phq9_procedure_count": 0,
+            "gad7_procedure_count": 0,
+            "has_prom_proc_score_mismatch": True,
         },
     },
-    
     # 6. Multiple valid PROM scores
     6: {
         "patients": {
@@ -169,22 +164,21 @@ test_data = {
         "expected_columns": {
             "sex": "male",
             "age": 59,
-            "imd_rounded": 32000,
             "imd": "5 (least deprived)",
             "region": "London",
             "latest_ethnicity_group": None,
-            "has_any_prom": True,
-            "more_than_one_prom": True,
+            "has_any_prom_score": True,
+            "has_more_than_one_prom_score": True,
             "phq9_score_count": 2,
             "gad7_score_count": 1,
             "prom_score_count": 3,
             "phq9_out_of_range_count": 0,
             "gad7_out_of_range_count": 0,
-            "phq9_proc_count": 0,
-            "gad7_proc_count": 0,
+            "phq9_procedure_count": 0,
+            "gad7_procedure_count": 0,
+            "has_prom_proc_score_mismatch": True,
         },
     },
-    
     # 7. Out of range PHQ-9 score (but still in population as it has out-of-range events)
     7: {
         "patients": {
@@ -214,22 +208,21 @@ test_data = {
         "expected_columns": {
             "sex": "female",
             "age": 36,
-            "imd_rounded": 17000,
             "imd": "3",
             "region": "South East",
             "latest_ethnicity_group": None,
-            "has_any_prom": True,
-            "more_than_one_prom": False,
+            "has_any_prom_score": True,
+            "has_more_than_one_prom_score": False,
             "phq9_score_count": 1,
             "gad7_score_count": 0,
             "prom_score_count": 1,
             "phq9_out_of_range_count": 1,
             "gad7_out_of_range_count": 0,
-            "phq9_proc_count": 0,
-            "gad7_proc_count": 0,
+            "phq9_procedure_count": 0,
+            "gad7_procedure_count": 0,
+            "has_prom_proc_score_mismatch": True,
         },
     },
-    
     # 8. Out of range GAD-7 score (but still in population as it has out-of-range events)
     8: {
         "patients": {
@@ -259,22 +252,21 @@ test_data = {
         "expected_columns": {
             "sex": "male",
             "age": 34,
-            "imd_rounded": 26000,
             "imd": "4",
             "region": "South West",
             "latest_ethnicity_group": None,
-            "has_any_prom": True,
-            "more_than_one_prom": False,
+            "has_any_prom_score": True,
+            "has_more_than_one_prom_score": False,
             "phq9_score_count": 0,
             "gad7_score_count": 1,
             "prom_score_count": 1,
             "phq9_out_of_range_count": 0,
             "gad7_out_of_range_count": 1,
-            "phq9_proc_count": 0,
-            "gad7_proc_count": 0,
+            "phq9_procedure_count": 0,
+            "gad7_procedure_count": 0,
+            "has_prom_proc_score_mismatch": True,
         },
     },
-    
     # 9. Mix of valid and out-of-range scores
     9: {
         "patients": {
@@ -314,20 +306,19 @@ test_data = {
         "expected_columns": {
             "sex": "female",
             "age": 46,
-            "imd_rounded": 7500,
             "imd": "2",
             "region": "North East",
             "latest_ethnicity_group": None,
-            "has_any_prom": True,
-            "more_than_one_prom": True,
+            "has_any_prom_score": True,
+            "has_more_than_one_prom_score": True,
             "phq9_score_count": 2,
             "gad7_score_count": 1,
             "prom_score_count": 3,
             "phq9_out_of_range_count": 1,
             "gad7_out_of_range_count": 0,
-            "phq9_proc_count": 0,
-            "gad7_proc_count": 0,
+            "phq9_procedure_count": 0,
+            "gad7_procedure_count": 0,
+            "has_prom_proc_score_mismatch": True,
         },
     },
 }
-
