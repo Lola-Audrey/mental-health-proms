@@ -75,7 +75,7 @@ has_gad7_procedure = gad7_procedure_count > 0
 has_any_prom_score = has_phq9_score | has_gad7_score
 has_prom_proc_score_mismatch = prom_proc_score_difference_count != 0
 
-# dataset
+# Define dataset variables
 dataset.define_population(has_registration & is_16_or_older & is_alive)
 
 dataset.sex = patients.sex

@@ -69,15 +69,27 @@ has_recorded_sex = patients.sex.is_not_null()
 
 # PROMs measures
 
-phq9_procedure_event = selected_events.where(clinical_events.snomedct_code.is_in(phq9_procedure_code))
-gad7_procedure_event = selected_events.where(clinical_events.snomedct_code.is_in(gad7_procedure_code))
+phq9_procedure_event = selected_events.where(
+    clinical_events.snomedct_code.is_in(phq9_procedure_code)
+)
+gad7_procedure_event = selected_events.where(
+    clinical_events.snomedct_code.is_in(gad7_procedure_code)
+)
 
 
-# Patients that completed a questionnaire for Depression or Anxiety at least once in the last year
-phq9_score_event = selected_events.where(clinical_events.snomedct_code.is_in(phq9_observable_entity_code))
-gad7_score_event = selected_events.where(clinical_events.snomedct_code.is_in(gad7_observable_entity_code))
+# Patients that completed a questionnaire for:
+# Depression or Anxiety at least once in the last year
+phq9_score_event = selected_events.where(
+    clinical_events.snomedct_code.is_in(phq9_observable_entity_code)
+)
+
+gad7_score_event = selected_events.where(
+    clinical_events.snomedct_code.is_in(gad7_observable_entity_code)
+)
+
 phq9_score_count = phq9_score_event.count_for_patient()
 gad7_score_count = gad7_score_event.count_for_patient()
+
 has_completed_phq9 = phq9_score_count > 0
 has_completed_gad7 = gad7_score_count > 0
 
