@@ -87,24 +87,24 @@ gad7_score_event = selected_events.where(
     clinical_events.snomedct_code.is_in(gad7_observable_entity_cod)
 )
 
-phq9_score_count = phq9_score_event.count_for_patient()
-gad7_score_count = gad7_score_event.count_for_patient()
+count_phq9_score = phq9_score_event.count_for_patient()
+count_gad7_score = gad7_score_event.count_for_patient()
 
-has_completed_phq9 = phq9_score_count > 0
-has_completed_gad7 = gad7_score_count > 0
+has_completed_phq9 = count_phq9_score > 0
+has_completed_gad7 = count_gad7_score > 0
 
-invalid_phq9_score = phq9_score_event.where(
+invalid_phq9_scores = phq9_score_event.where(
     (clinical_events.numeric_value < 0) | (clinical_events.numeric_value > 27)
 )
-invalid_gad7_score = gad7_score_event.where(
+invalid_gad7_scores = gad7_score_event.where(
     (clinical_events.numeric_value < 0) | (clinical_events.numeric_value > 21)
 )
 
-phq9_out_of_range_count = invalid_phq9_score.count_for_patient()
-gad7_out_of_range_count = invalid_gad7_score.count_for_patient()
+count_phq9_out_of_range = invalid_phq9_scores.count_for_patient()
+count_gad7_out_of_range = invalid_gad7_scores.count_for_patient()
 
-total_prom_score_count = phq9_score_count + gad7_score_count
-all_invalid_prom_count = phq9_out_of_range_count + gad7_out_of_range_count
+total_prom_score_count = count_phq9_score + count_gad7_score
+all_invalid_prom_count = count_phq9_out_of_range + count_gad7_out_of_range
 
 has_at_least_one_prom = has_completed_phq9 | has_completed_gad7
 
@@ -117,14 +117,14 @@ measures.define_measure(
 
 measures.define_measure(
     name="more_than_one_prom_population",
-    numerator=(phq9_score_count > 1) | (gad7_score_count > 1),
+    numerator=(count_phq9_score > 1) | (count_gad7_score > 1),
     denominator=base_population,
     intervals=years(1).ending_on(index_date),
 )
 
 measures.define_measure(
     name="more_than_one_prom",
-    numerator=(phq9_score_count > 1) | (gad7_score_count > 1),
+    numerator=(count_phq9_score > 1) | (count_gad7_score > 1),
     denominator=has_at_least_one_prom,
     intervals=years(1).ending_on(index_date),
 )
