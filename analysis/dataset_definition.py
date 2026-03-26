@@ -65,16 +65,12 @@ count_all_proms_procedure = count_phq9_procedure + count_gad7_procedure
 count_phq9_out_of_range = invalid_phq9_scores.count_for_patient()
 count_gad7_out_of_range = invalid_gad7_scores.count_for_patient()
 
-prom_proc_score_difference_count = count_all_proms_score - count_all_proms_procedure
-
 # PROMs flags
 has_phq9_score = count_phq9_score > 0
 has_gad7_score = count_gad7_score > 0
 has_phq9_procedure = count_phq9_procedure > 0
 has_gad7_procedure = count_gad7_procedure > 0
-
 has_any_proms_score = has_phq9_score | has_gad7_score
-has_prom_proc_score_mismatch = prom_proc_score_difference_count != 0
 
 # Define dataset variables
 dataset.define_population(has_registration & is_16_or_older & is_alive)
@@ -95,12 +91,11 @@ dataset.latest_ethnicity_group = (
 
 # PROMs variables
 dataset.has_any_proms_score = has_any_proms_score
-dataset.has_more_than_one_prom_score = count_all_proms_score > 1
 dataset.count_phq9_score = count_phq9_score
 dataset.count_gad7_score = count_gad7_score
 dataset.count_all_proms_score = count_all_proms_score
+dataset.count_all_proms_procedure = count_all_proms_procedure
 dataset.count_phq9_out_of_range = count_phq9_out_of_range
 dataset.count_gad7_out_of_range = count_gad7_out_of_range
 dataset.count_phq9_procedure = count_phq9_procedure
 dataset.count_gad7_procedure = count_gad7_procedure
-dataset.has_prom_proc_score_mismatch = has_prom_proc_score_mismatch
