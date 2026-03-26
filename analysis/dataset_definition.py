@@ -6,11 +6,11 @@ from ehrql.tables.tpp import (
     clinical_events,
 )
 from codelists import (
-    ethnicity_codes,
-    phq9_observable_entity_code,
-    phq9_procedure_code,
-    gad7_observable_entity_code,
-    gad7_procedure_code,
+    ethnicity_cod,
+    phq9_observable_entity_cod,
+    phq9_procedure_cod,
+    gad7_observable_entity_cod,
+    gad7_procedure_cod,
 )
 
 dataset = create_dataset()
@@ -34,16 +34,16 @@ previous_events = clinical_events.where(
 
 # PROMs score and procedure events
 phq9_score_event = previous_events.where(
-    clinical_events.snomedct_code.is_in(phq9_observable_entity_code)
+    clinical_events.snomedct_code.is_in(phq9_observable_entity_cod)
 )
 phq9_procedure_event = previous_events.where(
-    clinical_events.snomedct_code.is_in(phq9_procedure_code)
+    clinical_events.snomedct_code.is_in(phq9_procedure_cod)
 )
 gad7_score_event = previous_events.where(
-    clinical_events.snomedct_code.is_in(gad7_observable_entity_code)
+    clinical_events.snomedct_code.is_in(gad7_observable_entity_cod)
 )
 gad7_procedure_event = previous_events.where(
-    clinical_events.snomedct_code.is_in(gad7_procedure_code)
+    clinical_events.snomedct_code.is_in(gad7_procedure_cod)
 )
 
 invalid_phq9_score = phq9_score_event.where(
@@ -85,10 +85,10 @@ dataset.region = practice_registrations.for_patient_on(
     index_date
 ).practice_nuts1_region_name
 dataset.latest_ethnicity_group = (
-    previous_events.where(clinical_events.snomedct_code.is_in(ethnicity_codes))
+    previous_events.where(clinical_events.snomedct_code.is_in(ethnicity_cod))
     .sort_by(clinical_events.date)
     .last_for_patient()
-    .snomedct_code.to_category(ethnicity_codes)
+    .snomedct_code.to_category(ethnicity_cod)
 )
 dataset.has_any_prom_score = has_any_prom_score
 dataset.has_more_than_one_prom_score = prom_score_count > 1
