@@ -5,6 +5,7 @@ from ehrql.tables.tpp import (
     addresses,
     clinical_events,
 )
+from variables_library import get_invalid_scores
 from codelists import (
     ethnicity_cod,
     phq9_observable_entity_cod,
@@ -47,12 +48,8 @@ gad7_procedure_event = previous_events.where(
 )
 
 # Check for questionnaire scores that are outside the possible range
-invalid_phq9_scores = phq9_score_event.where(
-    (clinical_events.numeric_value < 0) | (clinical_events.numeric_value > 27)
-)
-invalid_gad7_scores = gad7_score_event.where(
-    (clinical_events.numeric_value < 0) | (clinical_events.numeric_value > 21)
-)
+invalid_phq9_scores = get_invalid_scores(phq9_score_event, "phq9")
+invalid_gad7_scores = get_invalid_scores(gad7_score_event, "gad7")
 
 # PROMs-related patient counts
 dataset.count_phq9_score = phq9_score_event.count_for_patient()
@@ -60,7 +57,9 @@ dataset.count_phq9_procedure = phq9_procedure_event.count_for_patient()
 dataset.count_gad7_score = gad7_score_event.count_for_patient()
 dataset.count_gad7_procedure = gad7_procedure_event.count_for_patient()
 dataset.count_all_proms_score = dataset.count_phq9_score + dataset.count_gad7_score
-dataset.count_all_proms_procedure = dataset.count_phq9_procedure + dataset.count_gad7_procedure
+dataset.count_all_proms_procedure = (
+    dataset.count_phq9_procedure + dataset.count_gad7_procedure
+)
 
 dataset.count_phq9_out_of_range = invalid_phq9_scores.count_for_patient()
 dataset.count_gad7_out_of_range = invalid_gad7_scores.count_for_patient()

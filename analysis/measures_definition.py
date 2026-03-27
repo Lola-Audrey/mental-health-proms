@@ -5,6 +5,7 @@ from ehrql.tables.tpp import (
     addresses,
     clinical_events,
 )
+from variables_library import get_invalid_scores
 from codelists import (
     ethnicity_cod,
     phq9_observable_entity_cod,
@@ -93,12 +94,8 @@ count_gad7_score = gad7_score_event.count_for_patient()
 has_completed_phq9 = count_phq9_score > 0
 has_completed_gad7 = count_gad7_score > 0
 
-invalid_phq9_scores = phq9_score_event.where(
-    (clinical_events.numeric_value < 0) | (clinical_events.numeric_value > 27)
-)
-invalid_gad7_scores = gad7_score_event.where(
-    (clinical_events.numeric_value < 0) | (clinical_events.numeric_value > 21)
-)
+invalid_phq9_scores = get_invalid_scores(phq9_score_event, "phq9")
+invalid_gad7_scores = get_invalid_scores(gad7_score_event, "gad7")
 
 count_phq9_out_of_range = invalid_phq9_scores.count_for_patient()
 count_gad7_out_of_range = invalid_gad7_scores.count_for_patient()
