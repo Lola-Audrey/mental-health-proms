@@ -202,7 +202,7 @@ df_fig_proms_anx_dep_usage <- proms_anx_dep_usage |>
 
 scale_x_date_breaks <- unique(df_fig_proms_anx_dep_usage$end_date)
 
-fig-total-trends-proms-sem-tag <- df_fig_proms_anx_dep_usage |> 
+fig_total_trends_proms_sem_tag <- df_fig_proms_anx_dep_usage |> 
     ggplot(
       aes(
         y = usage,
@@ -233,14 +233,14 @@ fig-total-trends-proms-sem-tag <- df_fig_proms_anx_dep_usage |>
     scale_colour_viridis_d(end = .8) +
     facet_wrap(~factor(semantic_tag_group, levels = c("Observable entity", "Procedure", "Other")), ncol = 1)
 
-ggsave(
-  filename = here("output", "figures", "occ", "fig-total-trends-proms-sem-tag.png"),
-  fig-total-trends-proms-sem-tag ,
-  height = 3.5,
-  width = 6
-)
+# ggsave(
+#   filename = here("output", "figures", "occ", "fig_total_trends_proms-sem_tag.png"),
+#   fig_total_trends_proms_sem_tag ,
+#   height = 3.5,
+#   width = 6
+# )
 
-fig_proms_anx_dep
+fig_total_trends_proms_sem_tag
 
 ```
 
@@ -329,6 +329,7 @@ tab_top5_proms_anx_dep_usage <- top5_proms_anx_dep_usage |>
     locations = cells_column_labels(columns = ratio_usage)
   )
 
+# dir.create(here("output", "tables", "occ"), recursive = TRUE, showWarnings = FALSE)
 # gtsave(
 #   tab_top5_proms_anx_dep_usage,
 #   here("output", "tables", "occ", "tab_top5_proms_usage.png")
