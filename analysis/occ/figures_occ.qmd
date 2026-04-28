@@ -1,0 +1,247 @@
+---
+title: "Code usage analysis of PROMs for anxiety disorders and depression"
+toc: true
+toc-depth: 2
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the code"
+    other-links:
+      - text: opencodecounts R pkg
+        href: https://bennettoxford.github.io/opencodecounts/
+      - text: SNOMED Code Usage
+        href: https://digital.nhs.uk/data-and-information/publications/statistical/mi-snomed-code-usage-in-primary-care
+editor: source
+---
+
+```{r}
+#| label: setup
+#| message: false
+#| results: 'hide'
+#| warning: false
+#| echo: true
+
+library(tidyverse)
+library(opencodecounts)
+library(gt)
+library(scales)
+library(here)
+library(patchwork)
+
+# Load codelists
+proms_anx_cod <- get_codelist(
+  "user/Lola_O/patient-reported-outcome-measures-for-anxiety-disorders/387cdfd9/"
+)
+
+proms_dep_cod <- get_codelist(
+  "user/Lola_O/patient-reported-outcome-measures-for-depression/2ceb2c72/"
+)
+
+# Get data for both codelists and extract semantic tag
+proms_anx_dep_usage <- snomed_usage |>
+  filter(snomed_code %in% c(proms_anx_cod$code, proms_dep_cod$code)) |>
+  mutate(
+    semantic_tag = extract_semantic_tag(description),
+    description_short = strip_semantic_tag(description),
+    proms_anx_cod = snomed_code %in% proms_anx_cod$code,
+    proms_dep_cod = snomed_code %in% proms_dep_cod$code
+  ) |>
+  select(
+    start_date,
+    end_date,
+    snomed_code,
+    description,
+    usage,
+    description_short,
+    semantic_tag,
+    proms_anx_cod,
+    proms_dep_cod
+  )
+
+# Use the most recent description for all codes
+proms_anx_dep_usage <- proms_anx_dep_usage |>
+  group_by(snomed_code) %>%
+  arrange(desc(end_date), .by_group = TRUE) %>%
+  mutate(description_short = first(description_short)) %>%
+  ungroup() |> 
+  arrange(desc(end_date), snomed_code)
+```
+
+# Overview
+
+- TODO: Add short overivew
+
+# Methods
+
+- TODO: Add short methods
+
+# Analysis
+
+- TODO: Add short description of analysis
+
+## Figures
+
+```{r}
+#| label: fig-total-trends-title
+#| echo: false
+#| fig-cap: "Yearly counts of PROMs for anxiety disorders and depression from 2011/12 to 2023/24."
+#| fig-height: 6
+#| fig-width: 8
+#| warning: false
+
+df_fig_proms_anx_dep_usage <- proms_anx_dep_usage |>
+  select(
+    end_date,
+    snomed_code,
+    description_short,
+    semantic_tag,
+    usage,
+    proms_anx_cod,
+    proms_dep_cod
+  ) |>
+  pivot_longer(
+    cols = c("proms_anx_cod", "proms_dep_cod"),
+    names_to = "codelist"
+  ) |>
+  filter(value == TRUE) |>
+  group_by(end_date, codelist) |>
+  summarise(usage = sum(usage)) |>
+  mutate(
+    codelist = factor(
+      codelist,
+      levels = c("proms_anx_cod", "proms_dep_cod"),
+      labels = c("Anxiety disorders", "Depression")
+    )
+  )
+
+scale_x_date_breaks <- c("2024-07-31", "2021-07-31", "2018-07-31", "2015-07-31", "2012-07-31")
+
+fig_proms_anx_dep_title <- df_fig_proms_anx_dep_usage |> 
+    ggplot(
+      aes(
+        y = usage,
+        x = end_date,
+        colour = codelist,
+        shape = codelist
+      )
+    ) +
+    geom_line(alpha = 0.2) +
+    geom_point(size = 2) +
+    labs(
+      title = "Trends of recorded PROMs codes for depression and anxiety in English primary care",
+      x = "End date of yearly time interval",
+      y = "Recorded events",
+      colour = NULL,
+      shape = NULL
+      ) +
+    scale_x_date(
+   breaks = seq(min(df_fig_proms_anx_dep_usage$end_date, na.rm=TRUE),
+               max(df_fig_proms_anx_dep_usage$end_date, na.rm=TRUE),
+               by = "3 years"),
+  labels = scales::label_date("%b\n%Y")
+    ) +
+    scale_y_continuous(
+      labels = label_number(accuracy = 1),
+      limits = c(0, NA)
+    ) +
+    theme_bw() +
+    theme(legend.position = "bottom", text = element_text(size = 14)) +
+    scale_colour_viridis_d(end = .8) +
+    theme(text = element_text(size = 8))
+    
+
+# ggsave(
+#   filename = here("output", "figures", "occ", "fig_proms_anx_dep_title.png"),
+#   fig_proms_anx_dep_title,
+#   height = 3.5,
+#   width = 6
+# )
+
+fig_proms_anx_dep_title
+```
+
+```{r}
+#| label: fig-total-trends-sem-tag
+#| echo: false
+#| fig-cap: "Yearly counts of PROMs for anxiety disorders and depression from 2011/12 to 2023/24."
+#| fig-height: 6
+#| fig-width: 8
+#| warning: false
+
+df_fig_proms_anx_dep_usage <- proms_anx_dep_usage |>
+  select(
+    end_date,
+    snomed_code,
+    description_short,
+    semantic_tag,
+    usage,
+    proms_anx_cod,
+    proms_dep_cod
+  ) |>
+  mutate(
+    semantic_tag_group = case_when(
+      semantic_tag %in% c("observable entity", "procedure") ~ semantic_tag,
+      TRUE ~ "other"
+    ),
+    semantic_tag_group = str_to_sentence(semantic_tag_group)
+  ) |>
+  pivot_longer(
+    cols = c("proms_anx_cod", "proms_dep_cod"),
+    names_to = "codelist"
+  ) |>
+  filter(value == TRUE) |>
+  group_by(end_date, semantic_tag_group, codelist) |>
+  summarise(usage = sum(usage)) |>
+  mutate(
+    codelist = factor(
+      codelist,
+      levels = c("proms_anx_cod", "proms_dep_cod"),
+      labels = c("Anxiety disorders", "Depression")
+    )
+  )
+
+scale_x_date_breaks <- unique(df_fig_proms_anx_dep_usage$end_date)
+
+fig-total-trends-proms-sem-tag <- df_fig_proms_anx_dep_usage |> 
+    ggplot(
+      aes(
+        y = usage,
+        x = end_date,
+        colour = codelist,
+        shape = codelist
+      )
+    ) +
+    geom_line(alpha = 0.2) +
+    geom_point(size = 2) +
+    labs(
+      title = NULL,
+      x = "End date of yearly time interval",
+      y = NULL,
+      colour = NULL,
+      shape = NULL
+      ) +
+    scale_x_date(
+      breaks = scale_x_date_breaks,
+      labels = scales::label_date("%b\n%Y")
+    ) +
+    scale_y_continuous(
+      labels = label_number(accuracy = 1),
+      limits = c(0, NA)
+    ) +
+    theme_bw() +
+    theme(legend.position = "bottom", text = element_text(size = 14)) +
+    scale_colour_viridis_d(end = .8) +
+    facet_wrap(~factor(semantic_tag_group, levels = c("Observable entity", "Procedure", "Other")), ncol = 1)
+
+# ggsave(
+#   filename = here("output", "figures", "occ", "fig-total-trends-proms-sem-tag.png"),
+#   fig-total-trends-proms-sem-tag ,
+#   height = 3.5,
+#   width = 6
+# )
+
+fig_proms_anx_dep
+
+```
+
+
